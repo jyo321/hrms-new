@@ -1,0 +1,28 @@
+
+version: '3'
+services:
+  backend:
+    image: mcr.microsoft.com/dotnet/sdk:7.0
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: dotnet run
+    ports:
+      - "5000:5000"
+
+  frontend:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install -g @angular/cli && npm install && ng serve --host 0.0.0.0"
+    ports:
+      - "4200:4200"
+
+  locust:
+    image: locustio/locust
+    volumes:
+      - ./loadtest:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --host=http://backend:5000
+    ports:
+      - "8089:8089"
